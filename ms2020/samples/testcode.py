@@ -29,7 +29,7 @@ def move_straight(duration, speed_mm_s):
     robot.stop(stop_type=Stop.BRAKE)
 
 
-## move_straight(5000, 300)
+move_straight(5000, 300)
 
 
 def turn(angle):
@@ -87,7 +87,7 @@ def turn_to_angle( gyro, target_angle):
     robot.stop(stop_type=Stop.BRAKE)
 
 
-# turn_to_angle( gyro, 65)
+turn_to_angle( gyro, 65)
 
 
 def calibrate_gyro(new_angle=0):
@@ -97,4 +97,7 @@ def calibrate_gyro(new_angle=0):
     gyro.reset_angle(new_angle)
     wait(50)
 
-    
+calibrate_gyro(0)    
+turn_to_angle( gyro, 65)
+move_straight(5000, 300)
+
