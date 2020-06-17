@@ -37,8 +37,9 @@ robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
 
 #Sensors
 gyro=GyroSensor(Port.S1)
+
 color_sensor_left = ColorSensor(Port.S2)
-# color_sensor_right = ColorSensor(Port.S3)
+color_sensor_right = ColorSensor(Port.S3)
 # Initialize the Ultrasonic Sensor. 
 # obstacle_sensor = UltrasonicSensor(Port.S4)
 
