@@ -12,10 +12,9 @@ from pybricks.ev3devices import Motor
 ##### Do not change above this line ##########################################
  
 SOUND_VOLUME=7
-
-
 WHEEL_DIAMETER_MM=89
 AXLE_TRACK_MM=157
+SENSOR_TO_AXLE=60
  
  
 #drive motors
@@ -28,8 +27,14 @@ def move_straight(duration, speed_mm_s):
     robot.drive_time(speed_mm_s, 0, duration)
     robot.stop(stop_type=Stop.BRAKE)
 
+def move_straight(distance, speed_mm_s):
 
-move_straight(5000, 300)
+    # calculate the time (duration) for which robot needs to run
+    duration = abs(int(1000 * max_distance / speed_mm_s))
+    robot.drive_time(speed_mm_s, 0, duration)
+    robot.stop(stop_type=Stop.BRAKE)
+
+# move_straight(5000, 300)
 
 
 def turn(angle):
@@ -98,6 +103,79 @@ def calibrate_gyro(new_angle=0):
     wait(50)
 
 calibrate_gyro(0)    
-turn_to_angle( gyro, 65)
-move_straight(5000, 300)
+# turn_to_angle( gyro, 65)
+# move_straight(5000, 300)
+
+crane_motor=Motor(Port.D)
+
+ 
+def move_crane_up( crane_motor, degrees):
+   crane_motor.run_angle(90,  degrees, Stop.BRAKE)
+ 
+def move_crane_down( crane_motor, degrees):
+   crane_motor.run_angle(90,    -1 * degrees, Stop.BRAKE)
+
+
+# move_crane_up(crane_motor, 60)
+
+def move_crane_to_floor(crane_motor):
+   crane_motor.run_until_stalled(-180, Stop.COAST, 50)
+   move_crane_up( crane_motor, degrees = 5)
+
+# move_crane_to_floor(crane_motor)
+
+
+def turn_to_color(color_sensor, stop_on_color, angular_speed_deg_s):
+ 
+    robot.drive(0, angular_speed_deg_s)
+    # Check if color reached.
+    while color_sensor.color() != stop_on_color:
+        wait(10)
+    robot.stop(stop_type=Stop.BRAKE)
+
+# turn_to_color(color_sensor_left, COLOR.RED, 45)
+
+def turn_to_color_right(color_sensor, stop_on_color, angular_speed_deg_s):
+ 
+    robot.drive(0, angular_speed_deg_s)
+    # Check if color reached.
+    while color_sensor.color() != stop_on_color:
+        wait(10)
+    robot.stop(stop_type=Stop.BRAKE)
+
+def turn_to_color_left(color_sensor, stop_on_color, angular_speed_deg_s):
+ 
+    robot.drive(0, -1 * angular_speed_deg_s)
+    # Check if color reached.
+    while color_sensor.color() != stop_on_color:
+        wait(10)
+    robot.stop(stop_type=Stop.BRAKE)
+
+
+turn_to_color(color_sensor_left, COLOR.RED, 45)
+
+
+# Used by line follower to align with the general direction of the line
+
+def align_with_line_to_left(color_sensor, line_color):
+
+    #Find left white border of line
+    move_to_color( color_sensor, line_color, 300)
+ 
+    #move forward half the length of tank and rotate
+    move_straight( SENSOR_TO_AXLE, 300)    
+    turn_to_color_right( color_sensor, line_color, 45) 
+
+def align_with_line_to_right(color_sensor, line_color):
+
+    #Find left white border of line
+    move_to_color( color_sensor, line_color, 300)
+ 
+    #move forward half the length of tank and rotate
+    move_straight( SENSOR_TO_AXLE, 300)    
+    turn_to_color_left( color_sensor, line_color, 45) 
+
+align_with_line_to_left(color_sensor_left, COLOR.RED)
+
+
 
