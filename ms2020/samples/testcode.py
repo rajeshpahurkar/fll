@@ -14,35 +14,40 @@ from pybricks.ev3devices import Motor
 SOUND_VOLUME=7
 WHEEL_DIAMETER_MM=89
 AXLE_TRACK_MM=157
-SENSOR_TO_AXLE=60
+SENSOR_TO_AXLE=52
  
  
 #drive motors
-left_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE)
-right_motor=Motor(Port.C, Direction.COUNTERCLOCKWISE)
+left_motor=Motor(Port.A, Direction.COUNTERCLOCKWISE)
+right_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
 
 
-def move_straight(duration, speed_mm_s):
-    robot.drive_time(speed_mm_s, 0, duration)
-    robot.stop(stop_type=Stop.BRAKE)
+# def move_straight(duration, speed_mm_s):
+#     robot.drive_time(speed_mm_s, 0, duration)
+#     robot.stop(stop_type=Stop.BRAKE)
 
 def move_straight(distance, speed_mm_s):
 
     # calculate the time (duration) for which robot needs to run
-    duration = abs(int(1000 * max_distance / speed_mm_s))
+    duration = abs(int(1000 * distance / speed_mm_s))
     robot.drive_time(speed_mm_s, 0, duration)
     robot.stop(stop_type=Stop.BRAKE)
 
-# move_straight(5000, 300)
+# move_straight(200, 300)
 
 
 def turn(angle):
     robot.drive_time(0, angle, 1000)
-    robot.stop(stop_type=Stop.BRAKE)
 
 
-## turn(60)
+# turn(60)
+
+def turn_arc(distance,angle):
+    robot.drive_time(distance, angle, 1000)
+
+
+turn_arc(300,60)
 
 color_sensor_left = ColorSensor(Port.S2)
 color_sensor_right = ColorSensor(Port.S3)
@@ -59,9 +64,9 @@ def move_to_color(
     robot.stop(stop_type=Stop.BRAKE)
 
 
-##move_to_color(color_sensor_left, COLOR.RED, 300)
+# move_to_color(color_sensor_left, Color.RED, 300)
 
-obstacle_sensor = UltrasonicSensor(Port.S4)
+# obstacle_sensor = UltrasonicSensor(Port.S4)
 
 def move_to_obstacle(
     obstacle_sensor,
@@ -76,14 +81,14 @@ def move_to_obstacle(
     
 # move_to_obstacle(obstacle_sensor, 50, 300)
 
-gyro=GyroSensor(Port.S1)
+gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
 
 
 
 def turn_to_angle( gyro, target_angle):
 
     error = target_angle - gyro.angle()
-    while ( abs(error) > 5):
+    while ( abs(error) >= 4):
         adj_angular_speed = error * 1.5
         robot.drive(0, adj_angular_speed)
         wait(100)
@@ -92,7 +97,7 @@ def turn_to_angle( gyro, target_angle):
     robot.stop(stop_type=Stop.BRAKE)
 
 
-turn_to_angle( gyro, 65)
+# turn_to_angle( gyro, 65)
 
 
 def calibrate_gyro(new_angle=0):
@@ -102,11 +107,11 @@ def calibrate_gyro(new_angle=0):
     gyro.reset_angle(new_angle)
     wait(50)
 
-calibrate_gyro(0)    
+# calibrate_gyro(0)    
 # turn_to_angle( gyro, 65)
 # move_straight(5000, 300)
 
-crane_motor=Motor(Port.D)
+crane_motor=Motor(Port.C, Direction.COUNTERCLOCKWISE)
 
  
 def move_crane_up( crane_motor, degrees):
@@ -133,7 +138,7 @@ def turn_to_color(color_sensor, stop_on_color, angular_speed_deg_s):
         wait(10)
     robot.stop(stop_type=Stop.BRAKE)
 
-# turn_to_color(color_sensor_left, COLOR.RED, 45)
+# turn_to_color(color_sensor_left, Color.RED, 45)
 
 def turn_to_color_right(color_sensor, stop_on_color, angular_speed_deg_s):
  
@@ -152,7 +157,7 @@ def turn_to_color_left(color_sensor, stop_on_color, angular_speed_deg_s):
     robot.stop(stop_type=Stop.BRAKE)
 
 
-turn_to_color(color_sensor_left, COLOR.RED, 45)
+# turn_to_color_left(color_sensor_left, Color.BLUE, 45)
 
 
 # Used by line follower to align with the general direction of the line
@@ -175,7 +180,8 @@ def align_with_line_to_right(color_sensor, line_color):
     move_straight( SENSOR_TO_AXLE, 300)    
     turn_to_color_left( color_sensor, line_color, 45) 
 
-align_with_line_to_left(color_sensor_left, COLOR.RED)
+# align_with_line_to_left(color_sensor_left, Color.BLACK)
+# align_with_line_to_right(color_sensor_left, Color.BLACK)
 
 
 
