@@ -21,7 +21,11 @@ SENSOR_TO_AXLE=52
 left_motor=Motor(Port.A, Direction.COUNTERCLOCKWISE)
 right_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
+crane_motor=Motor(Port.C, Direction.COUNTERCLOCKWISE)
 
+gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
+color_sensor_left = ColorSensor(Port.S2)
+color_sensor_right = ColorSensor(Port.S3)
 
 # def move_straight(duration, speed_mm_s):
 #     robot.drive_time(speed_mm_s, 0, duration)
@@ -49,18 +53,16 @@ def turn_arc(distance,angle):
 
 #turn_arc(300,60)
 
-color_sensor_left = ColorSensor(Port.S2)
-color_sensor_right = ColorSensor(Port.S3)
 
-def drive_raising_crane(duration_ms, robot_distance_mm, turn_angle, 
+def drive_raising_crane(duration_ms, robot_distance_mm, robot_turn_angle, 
                         crane_motor, crane_angle):
     crane_angular_speed = abs(int(1000 * crane_angle / duration_ms))
-    turn_angular_speed_deg_s = abs(int(1000 * turn_angle / duration_ms))
+    turn_angular_speed_deg_s = abs(int(1000 * robot_turn_angle / duration_ms))
     forward_speed = abs(int(1000 * robot_distance_mm / duration_ms)) 
-    robot.drive(forward_speed, angular_speed_deg_s)
+    robot.drive(forward_speed, turn_angular_speed_deg_s)
     crane_motor.run(crane_angular_speed)
     wait(duration_ms)
-    crane_motor.stop(stop_type=Stop.BRAKE)
+    crane_motor.stop(Stop.BRAKE)
     robot.stop(stop_type=Stop.BRAKE)
 
 
@@ -93,7 +95,6 @@ def move_to_obstacle(
     
 # move_to_obstacle(obstacle_sensor, 50, 300)
 
-gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
 
 
 
@@ -115,15 +116,14 @@ def turn_to_angle( gyro, target_angle):
 def calibrate_gyro(new_angle=0):
     current_speed=gyro.speed()
     current_angle=gyro.angle()
-    wait(50)
+    wait(60)
     gyro.reset_angle(new_angle)
-    wait(50)
+    wait(20)
 
 # calibrate_gyro(0)    
 # turn_to_angle( gyro, 65)
 # move_straight(5000, 300)
 
-crane_motor=Motor(Port.C, Direction.COUNTERCLOCKWISE)
 
  
 def move_crane_up( crane_motor, degrees):
@@ -194,6 +194,34 @@ def align_with_line_to_right(color_sensor, line_color):
 
 # align_with_line_to_left(color_sensor_left, Color.BLACK)
 # align_with_line_to_right(color_sensor_left, Color.BLACK)
+
+
+
+def turn_to_angle( gyro, target_angle):
+
+    error = target_angle - gyro.angle()
+    while ( abs(error) >= 4):
+        adj_angular_speed = error * 1.5
+        robot.drive(0, adj_angular_speed)
+        wait(100)
+        error=target_angle - gyro.angle()
+
+    robot.stop(stop_type=Stop.BRAKE)
+
+def move_straight_target_direction(gyro, distance_mm, speed_mm_s, target_angle):
+
+    turn_to_angle( gyro, target_angle)
+    duration = abs(int(1000 * distance_mm / speed_mm_s))
+    time_spent=0
+    while (time_spent<duration):
+        error = target_angle - gyro.angle()
+        adj_angular_speed = error * 1.5
+        robot.drive(speed_mm_s, adj_angular_speed)
+        wait(200)
+        time_spent = time_spent + 200
+
+    robot.stop(stop_type=Stop.BRAKE)
+
 
 
 
