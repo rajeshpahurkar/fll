@@ -47,10 +47,22 @@ def turn_arc(distance,angle):
     robot.drive_time(distance, angle, 1000)
 
 
-turn_arc(300,60)
+#turn_arc(300,60)
 
 color_sensor_left = ColorSensor(Port.S2)
 color_sensor_right = ColorSensor(Port.S3)
+
+def drive_raising_crane(duration_ms, robot_distance_mm, turn_angle, 
+                        crane_motor, crane_angle):
+    crane_angular_speed = abs(int(1000 * crane_angle / duration_ms))
+    turn_angular_speed_deg_s = abs(int(1000 * turn_angle / duration_ms))
+    forward_speed = abs(int(1000 * robot_distance_mm / duration_ms)) 
+    robot.drive(forward_speed, angular_speed_deg_s)
+    crane_motor.run(crane_angular_speed)
+    wait(duration_ms)
+    crane_motor.stop(stop_type=Stop.BRAKE)
+    robot.stop(stop_type=Stop.BRAKE)
+
 
 def move_to_color(
     color_sensor,
