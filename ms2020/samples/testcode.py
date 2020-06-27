@@ -13,19 +13,23 @@ from pybricks.ev3devices import Motor
  
 SOUND_VOLUME=7
 WHEEL_DIAMETER_MM=89
-AXLE_TRACK_MM=157
-SENSOR_TO_AXLE=52
- 
+AXLE_TRACK_MM=135
+SENSOR_TO_AXLE=118
+
+# Get wheel circumference
+WHEEL_CIRCUM_MM=3.149*89
+# 360 degrees -> WHEEL_CIRCUM_MM so   1 degree -> ?
+DEGREES_PER_MM=360/WHEEL_CIRCUM_MM
  
 #drive motors
-left_motor=Motor(Port.A, Direction.COUNTERCLOCKWISE)
-right_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE)
+left_motor=Motor(Port.B, Direction.CLOCKWISE)
+right_motor=Motor(Port.C, Direction.CLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
-crane_motor=Motor(Port.C, Direction.COUNTERCLOCKWISE, [8,24])
+crane_motor=Motor(Port.A, Direction.COUNTERCLOCKWISE, [8,24])
 
 gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
-color_sensor_left = ColorSensor(Port.S4)
-color_sensor_right = ColorSensor(Port.S3)
+color_sensor_left = ColorSensor(Port.S2)
+color_sensor_right = ColorSensor(Port.S4)
 
 # def move_straight(duration, speed_mm_s):
 #     robot.drive_time(speed_mm_s, 0, duration)
@@ -38,20 +42,20 @@ def move_straight(distance, speed_mm_s):
     robot.drive_time(speed_mm_s, 0, duration)
     robot.stop(stop_type=Stop.BRAKE)
 
-# move_straight(200, 300)
+# move_straight(distance=300, speed_mm_s=300)
 
 
 def turn(angle):
     robot.drive_time(0, angle, 1000)
 
 
-# turn(60)
+# turn(180)
 
 def turn_arc(distance,angle):
     robot.drive_time(distance, angle, 1000)
 
 
-#turn_arc(300,60)
+# turn_arc(distance=200,angle=-90)
 
 
 def drive_raising_crane(duration_ms, robot_distance_mm, robot_turn_angle, 
@@ -78,7 +82,7 @@ def move_to_color(
     robot.stop(stop_type=Stop.BRAKE)
 
 
-# move_to_color(color_sensor_left, Color.RED, 300)
+# move_to_color(color_sensor=color_sensor_left, stop_on_color=Color.RED, speed_mm_s=300)
 
 # obstacle_sensor = UltrasonicSensor(Port.S4)
 
@@ -120,8 +124,8 @@ def calibrate_gyro(new_angle=0):
     gyro.reset_angle(new_angle)
     wait(20)
 
-# calibrate_gyro(0)    
-# turn_to_angle( gyro, 65)
+# calibrate_gyro(new_angle=0)    
+# turn_to_angle( gyro=gyro, target_angle=65)
 # move_straight(5000, 300)
 
 
@@ -133,7 +137,7 @@ def move_crane_down( crane_motor, degrees):
    crane_motor.run_angle(90,    -1 * degrees, Stop.BRAKE)
 
 
-# move_crane_up(crane_motor, 90)
+# move_crane_down(crane_motor=crane_motor, degrees=90)
 
 def move_crane_to_floor(crane_motor):
    crane_motor.run_until_stalled(-180, Stop.COAST, 35)
@@ -202,17 +206,6 @@ def align_with_line_to_right(color_sensor, line_color):
 
 
 
-def turn_to_angle( gyro, target_angle):
-
-    error = target_angle - gyro.angle()
-    while ( abs(error) >= 4):
-        adj_angular_speed = error * 1.5
-        robot.drive(0, adj_angular_speed)
-        wait(100)
-        error=target_angle - gyro.angle()
-
-    robot.stop(stop_type=Stop.BRAKE)
-
 def move_straight_target_direction(gyro, distance_mm, speed_mm_s, target_angle):
 
     turn_to_angle( gyro, target_angle)
@@ -224,6 +217,29 @@ def move_straight_target_direction(gyro, distance_mm, speed_mm_s, target_angle):
         robot.drive(speed_mm_s, adj_angular_speed)
         wait(200)
         time_spent = time_spent + 200
+
+    robot.stop(stop_type=Stop.BRAKE)
+
+
+# Similar to the above function but check the distance traveled by 
+# checking the motor angle. This will be a more accurate way of checking 
+# distance traveled
+# Dont confuse motor angle (rotations) with gyro angle (direction)
+def move_straight_target_direction_motor_angle(gyro, distance_mm, speed_mm_s, target_angle):
+
+    turn_to_angle( gyro, target_angle)
+
+    # Use a different variable name for gyro so you dont get confused
+    gyro_target_angle = target_angle
+    left_motor.reset_angle(0)
+    motor_target_angle = int(DEGREES_PER_MM * distance_mm)
+
+    duration = abs(int(1000 * distance_mm / speed_mm_s))
+    while (abs(left_motor.angle()) < abs(motor_target_angle)):
+        error = target_angle - gyro.angle()
+        adj_angular_speed = error * 1.5
+        robot.drive(speed_mm_s, adj_angular_speed)
+        wait(100)
 
     robot.stop(stop_type=Stop.BRAKE)
 
