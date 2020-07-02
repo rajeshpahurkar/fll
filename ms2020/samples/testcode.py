@@ -22,14 +22,14 @@ WHEEL_CIRCUM_MM=3.149*89
 DEGREES_PER_MM=360/WHEEL_CIRCUM_MM
  
 #drive motors
-left_motor=Motor(Port.B, Direction.CLOCKWISE)
-right_motor=Motor(Port.C, Direction.CLOCKWISE)
+left_motor=Motor(Port.C, Direction.CLOCKWISE)
+right_motor=Motor(Port.D, Direction.CLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
-crane_motor=Motor(Port.A, Direction.COUNTERCLOCKWISE, [8,24])
+# crane_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE, [8,24])
 
 gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
-color_sensor_left = ColorSensor(Port.S2)
-color_sensor_right = ColorSensor(Port.S4)
+# color_sensor_left = ColorSensor(Port.S1)
+# color_sensor_right = ColorSensor(Port.S3)
 
 # def move_straight(duration, speed_mm_s):
 #     robot.drive_time(speed_mm_s, 0, duration)
@@ -49,7 +49,7 @@ def turn(angle):
     robot.drive_time(0, angle, 1000)
 
 
-# turn(180)
+# turn(270)
 
 def turn_arc(distance,angle):
     robot.drive_time(distance, angle, 1000)
@@ -82,7 +82,7 @@ def move_to_color(
     robot.stop(stop_type=Stop.BRAKE)
 
 
-# move_to_color(color_sensor=color_sensor_left, stop_on_color=Color.RED, speed_mm_s=300)
+# move_to_color(color_sensor=color_sensor_right, stop_on_color=Color.RED, speed_mm_s=100)
 
 # obstacle_sensor = UltrasonicSensor(Port.S4)
 
@@ -97,10 +97,18 @@ def move_to_obstacle(
         wait(10)
     robot.stop(stop_type=Stop.BRAKE)
     
-# move_to_obstacle(obstacle_sensor, 50, 300)
+# move_to_obstacle(obstacle_sensor=obstacle_sensor, stop_on_obstacle_at=50, speed_mm_s=300)
 
+# touch_sensor= TouchSensor(Port.S4)
 
-
+def move_to_wall(touch_sensor, speed_mm_s):
+    robot.drive(speed_mm_s, 0)
+    # Check if touch sensore pressed.
+    while touch_sensor.pressed() == False :
+        wait(10)
+    robot.stop(stop_type=Stop.BRAKE)
+       
+# move_to_wall(touch_sensor=touch_sensor, speed_mm_s=100)
 
 def turn_to_angle( gyro, target_angle):
 
@@ -234,7 +242,6 @@ def move_straight_target_direction_motor_angle(gyro, distance_mm, speed_mm_s, ta
     left_motor.reset_angle(0)
     motor_target_angle = int(DEGREES_PER_MM * distance_mm)
 
-    duration = abs(int(1000 * distance_mm / speed_mm_s))
     while (abs(left_motor.angle()) < abs(motor_target_angle)):
         error = target_angle - gyro.angle()
         adj_angular_speed = error * 1.5
@@ -244,5 +251,17 @@ def move_straight_target_direction_motor_angle(gyro, distance_mm, speed_mm_s, ta
     robot.stop(stop_type=Stop.BRAKE)
 
 
+calibrate_gyro(new_angle=0)
+move_straight_target_direction(gyro=gyro,
+       distance_mm=600, speed_mm_s=-200, target_angle=0)
+# move_straight(distance=600, speed_mm_s=300)
 
 
+def log_string(message):
+    print(message)
+    brick.display.text(message)
+
+log_string('Running robot now done')
+wait(10)
+
+log_string('The color on left is ' + str(color_sensor_left.color()))
