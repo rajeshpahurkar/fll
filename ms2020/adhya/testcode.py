@@ -10,10 +10,27 @@ from pybricks.ev3devices import Motor
 
 ##### Do not change above this line ##########################################
 
-SOUND_VOLUME=7
+WHEEL_DIAMETER_MM=89
+AXLE_TRACK_MM=135
  
  
-def sound_happy():
-    brick.sound.beep(1100, 80, SOUND_VOLUME)
-    brick.sound.beep(900, 80, SOUND_VOLUME)
-sound_happy()
+#drive motors
+left_motor=Motor(Port.B, Direction.CLOCKWISE)
+right_motor=Motor(Port.C, Direction.CLOCKWISE)
+robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
+
+def move_straight(duration, speed_mm_s):
+    robot.drive_time(speed_mm_s, 0, duration)
+    robot.stop(stop_type=Stop.BRAKE)
+
+move_straight(duration=5000, speed_mm_s=300) 
+## move_straight(5000, 300)
+
+def turn(angle):
+    robot.drive_time(0, angle, 1000)
+    turn(angle=60)
+    ## turn(60)
+
+def turn_arc(distance,angle):
+   robot.drive_time(distance, angle, 1000)
+   turn_arc(distance=200,angle=90)
