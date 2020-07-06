@@ -7,14 +7,19 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch
 from pybricks.robotics import DriveBase
 from pybricks.ev3devices import Motor
+sys.path.append(os.path.abspath('../shared'))
  
+import robot_setup
 import testcode
 
-from testcode import robot
-from testcode import gyro
-from testcode import crane_motor
-from testcode import left_motor
-from testcode import right_motor
+from robot_setup import robot
+from robot_setup import gyro
+from robot_setup import rack_motor
+from robot_setup import crane_motor
+from robot_setup import left_motor
+from robot_setup import right_motor
+from robot_setup import touch_sensor
+from robot_setup import right_motor
 
 def returnhome():
     testcode.turn_to_angle(gyro=gyro, target_angle=0)

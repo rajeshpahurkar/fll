@@ -25,11 +25,11 @@ DEGREES_PER_MM=360/WHEEL_CIRCUM_MM
 left_motor=Motor(Port.C, Direction.CLOCKWISE)
 right_motor=Motor(Port.D, Direction.CLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
-# crane_motor=Motor(Port.B, Direction.COUNTERCLOCKWISE, [8,24])
+crane_motor=Motor(Port.B, Direction.CLOCKWISE, [8,24])
 
 gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
 # color_sensor_left = ColorSensor(Port.S1)
-# color_sensor_right = ColorSensor(Port.S3)
+color_sensor_right = ColorSensor(Port.S4)
 
 # def move_straight(duration, speed_mm_s):
 #     robot.drive_time(speed_mm_s, 0, duration)
@@ -49,7 +49,7 @@ def turn(angle):
     robot.drive_time(0, angle, 1000)
 
 
-# turn(270)
+# turn(90)
 
 def turn_arc(distance,angle):
     robot.drive_time(distance, angle, 1000)
@@ -82,7 +82,7 @@ def move_to_color(
     robot.stop(stop_type=Stop.BRAKE)
 
 
-# move_to_color(color_sensor=color_sensor_right, stop_on_color=Color.RED, speed_mm_s=100)
+# move_to_color(color_sensor=color_sensor_right, stop_on_color=Color.BLACK, speed_mm_s=100)
 
 # obstacle_sensor = UltrasonicSensor(Port.S4)
 
@@ -99,7 +99,7 @@ def move_to_obstacle(
     
 # move_to_obstacle(obstacle_sensor=obstacle_sensor, stop_on_obstacle_at=50, speed_mm_s=300)
 
-# touch_sensor= TouchSensor(Port.S4)
+touch_sensor= TouchSensor(Port.S3)
 
 def move_to_wall(touch_sensor, speed_mm_s):
     robot.drive(speed_mm_s, 0)
@@ -145,15 +145,16 @@ def move_crane_down( crane_motor, degrees):
    crane_motor.run_angle(90,    -1 * degrees, Stop.BRAKE)
 
 
+# move_crane_up(crane_motor=crane_motor, degrees=120)
 # move_crane_down(crane_motor=crane_motor, degrees=90)
 
 def move_crane_to_floor(crane_motor):
-   crane_motor.run_until_stalled(-180, Stop.COAST, 35)
-   move_crane_up( crane_motor, degrees = 25)
+   crane_motor.run_until_stalled(-360, Stop.COAST, 35)
+   move_crane_up( crane_motor, degrees = 10)
 
 def move_crane_to_top(crane_motor):
-   crane_motor.run_until_stalled(180, Stop.COAST, 35)
-   move_crane_down( crane_motor, degrees = 25)
+   crane_motor.run_until_stalled(360, Stop.COAST, 35)
+   move_crane_down( crane_motor, degrees = 10)
 
 # move_crane_to_floor(crane_motor)
 # move_crane_to_top(crane_motor)
@@ -186,7 +187,7 @@ def turn_to_color_left(color_sensor, stop_on_color, angular_speed_deg_s):
     robot.stop(stop_type=Stop.BRAKE)
 
 
-# turn_to_color_left(color_sensor_left, Color.BLUE, 45)
+# turn_to_color_left(color_sensor_right, Color.BLUE, 45)
 
 
 # Used by line follower to align with the general direction of the line
@@ -210,7 +211,7 @@ def align_with_line_to_right(color_sensor, line_color):
     turn_to_color_left( color_sensor, line_color, 45) 
 
 # align_with_line_to_left(color_sensor_left, Color.BLACK)
-# align_with_line_to_right(color_sensor_left, Color.BLACK)
+# align_with_line_to_right(color_sensor_right, Color.BLACK)
 
 
 
@@ -252,8 +253,8 @@ def move_straight_target_direction_motor_angle(gyro, distance_mm, speed_mm_s, ta
 
 
 calibrate_gyro(new_angle=0)
-move_straight_target_direction(gyro=gyro,
-       distance_mm=600, speed_mm_s=-200, target_angle=0)
+# move_straight_target_direction(gyro=gyro,
+#        distance_mm=600, speed_mm_s=290, target_angle=0)
 # move_straight(distance=600, speed_mm_s=300)
 
 
@@ -261,7 +262,52 @@ def log_string(message):
     print(message)
     brick.display.text(message)
 
-log_string('Running robot now done')
-wait(10)
+# log_string('Running robot now done')
+# wait(10)
 
-log_string('The color on left is ' + str(color_sensor_left.color()))
+# log_string('The color on left is ' + str(color_sensor_left.color()))
+
+def color_test(color_sensor, distance_mm, speed_mm_s):
+
+    left_motor.reset_angle(0)
+    motor_target_angle = int(DEGREES_PER_MM * distance_mm)
+
+    while (abs(left_motor.angle()) < abs(motor_target_angle)):
+        log_string('Color : ' + str(color_sensor.color()) + ' Intense:' + str(color_sensor.reflection()))
+        robot.drive(speed_mm_s, 0)
+        wait(300)
+
+    robot.stop(stop_type=Stop.BRAKE)
+
+# color_test(color_sensor=color_sensor_right, distance_mm=100, speed_mm_s=50)
+# wait(999999)
+
+def follow_line_border(
+    color_sensor,
+    distance_mm,
+    speed_mm_s, 
+    border_color,
+    color_on_left):
+
+    left_motor.reset_angle(0)
+    motor_target_angle = int(DEGREES_PER_MM * distance_mm)
+
+    # Keep moving till the angle of the left motor reaches target
+    while (abs(left_motor.angle()) < abs(motor_target_angle)):
+        error = 100 - color_sensor.reflection()
+        if color_sensor.color() == border_color:
+            robot.drive(speed_mm_s, 0)
+        elif color_sensor.color() == color_on_left:
+            robot.drive(speed_mm_s, 0.5 * error)
+        else :
+            robot.drive(speed_mm_s,  -0.5 * error)
+        wait(50)
+
+    robot.stop(stop_type=Stop.BRAKE)
+
+follow_line_border(
+    color_sensor=color_sensor_right,
+    distance_mm=650,
+    speed_mm_s=150, 
+    border_color=Color.WHITE,
+    color_on_left=Color.BLACK)
