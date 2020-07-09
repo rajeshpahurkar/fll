@@ -1,5 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 # from pybricks.hubs import EV3Brick
+import sys
+import os
 from pybricks import ev3brick as brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                 InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -7,39 +9,50 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch
 from pybricks.robotics import DriveBase
 from pybricks.ev3devices import Motor
+
+sys.path.append(os.path.abspath('../shared'))
  
+import robot_setup
+
+from robot_setup import left_motor
+from robot_setup import right_motor
+from robot_setup import robot
+from robot_setup import rack_motor
+from robot_setup import crane_motor
+from robot_setup import gyro
+from robot_setup import touch_sensor 
+from robot_setup import color_sensor_left
+from robot_setup import color_sensor_right
+from robot_setup import color_sensor_center
+from robot_setup import touch_sensor
+
+from robot_setup import SOUND_VOLUME
+from robot_setup import WHEEL_DIAMETER_MM
+from robot_setup import AXLE_TRACK_MM
+from robot_setup import SENSOR_TO_AXLE
+from robot_setup import WHEEL_CIRCUM_MM
+from robot_setup import DEGREES_PER_MM
 
 ##### Do not change above this line ##########################################
- 
-SOUND_VOLUME=7
-WHEEL_DIAMETER_MM=89
-AXLE_TRACK_MM=135
-SENSOR_TO_AXLE=118
-
-# Get wheel circumference
-WHEEL_CIRCUM_MM=3.149*89
-# 360 degrees -> WHEEL_CIRCUM_MM so   1 degree -> ?
-DEGREES_PER_MM=360/WHEEL_CIRCUM_MM
- 
-#drive motors
-left_motor=Motor(Port.C, Direction.CLOCKWISE)
-right_motor=Motor(Port.D, Direction.CLOCKWISE)
-robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
-crane_motor=Motor(Port.B, Direction.CLOCKWISE, [8,24])
-
-gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
-# color_sensor_left = ColorSensor(Port.S1)
-color_sensor_right = ColorSensor(Port.S4)
 
 # def move_straight(duration, speed_mm_s):
 #     robot.drive_time(speed_mm_s, 0, duration)
 #     robot.stop(stop_type=Stop.BRAKE)
 
+def log_string(message):
+    print(message)
+    brick.display.text(message)
+
 def move_straight(distance, speed_mm_s):
 
-    # calculate the time (duration) for which robot needs to run
-    duration = abs(int(1000 * distance / speed_mm_s))
-    robot.drive_time(speed_mm_s, 0, duration)
+    left_motor.reset_angle(0)
+    motor_target_angle = int(DEGREES_PER_MM * distance_mm)
+
+    # Keep moving till the angle of the left motor reaches target
+    while (abs(left_motor.angle()) < abs(motor_target_angle)):
+        robot.drive(speed_mm_s, 0)
+        wait(100)
+
     robot.stop(stop_type=Stop.BRAKE)
 
 # move_straight(distance=300, speed_mm_s=300)
@@ -133,7 +146,7 @@ def calibrate_gyro(new_angle=0):
     wait(20)
 
 # calibrate_gyro(new_angle=0)    
-# turn_to_angle( gyro=gyro, target_angle=65)
+# turn_to_angle( gyro=gyro, target_angle=-65)
 # move_straight(5000, 300)
 
 
@@ -245,22 +258,19 @@ def move_straight_target_direction_motor_angle(gyro, distance_mm, speed_mm_s, ta
 
     while (abs(left_motor.angle()) < abs(motor_target_angle)):
         error = target_angle - gyro.angle()
+        log_string('Gyro :' + str(gyro.angle()) + ' err: '+ str(error))
         adj_angular_speed = error * 1.5
         robot.drive(speed_mm_s, adj_angular_speed)
-        wait(100)
+        wait(50)
 
     robot.stop(stop_type=Stop.BRAKE)
 
 
 calibrate_gyro(new_angle=0)
-# move_straight_target_direction(gyro=gyro,
-#        distance_mm=600, speed_mm_s=290, target_angle=0)
+move_straight_target_direction_motor_angle(gyro=gyro,
+       distance_mm=600, speed_mm_s=240, target_angle=0)
 # move_straight(distance=600, speed_mm_s=300)
-
-
-def log_string(message):
-    print(message)
-    brick.display.text(message)
+# wait(999999)
 
 # log_string('Running robot now done')
 # wait(10)
@@ -305,9 +315,9 @@ def follow_line_border(
 
     robot.stop(stop_type=Stop.BRAKE)
 
-follow_line_border(
-    color_sensor=color_sensor_right,
-    distance_mm=650,
-    speed_mm_s=150, 
-    border_color=Color.WHITE,
-    color_on_left=Color.BLACK)
+# follow_line_border(
+#     color_sensor=color_sensor_right,
+#     distance_mm=650,
+#     speed_mm_s=150, 
+#     border_color=Color.WHITE,
+#     color_on_left=Color.BLACK)

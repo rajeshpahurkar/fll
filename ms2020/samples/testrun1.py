@@ -1,5 +1,7 @@
 #!/usr/bin/env pybricks-micropython
 # from pybricks.hubs import EV3Brick
+import sys
+import os
 from pybricks import ev3brick as brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                 InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -11,16 +13,29 @@ sys.path.append(os.path.abspath('../shared'))
  
 import robot_setup
 import testcode
+import linefollow
 
-from robot_setup import robot
-from robot_setup import gyro
-from robot_setup import rack_motor
-from robot_setup import crane_motor
 from robot_setup import left_motor
 from robot_setup import right_motor
+from robot_setup import robot
+from robot_setup import rack_motor
+from robot_setup import crane_motor
+from robot_setup import gyro
+from robot_setup import touch_sensor 
+from robot_setup import color_sensor_left
+from robot_setup import color_sensor_right
+from robot_setup import color_sensor_center
 from robot_setup import touch_sensor
-from robot_setup import right_motor
 
+from robot_setup import SOUND_VOLUME
+from robot_setup import WHEEL_DIAMETER_MM
+from robot_setup import AXLE_TRACK_MM
+from robot_setup import SENSOR_TO_AXLE
+from robot_setup import WHEEL_CIRCUM_MM
+from robot_setup import DEGREES_PER_MM
+
+##### Do not change above this line ##########################################
+ 
 def returnhome():
     testcode.turn_to_angle(gyro=gyro, target_angle=0)
     testcode.move_straight(distance=1000, speed_mm_s=-500)
@@ -76,5 +91,12 @@ testcode.calibrate_gyro(0)
 # traffic()
 # swing()
 # returnhome()
-tower()
+# tower()
 # bridge()
+
+linefollow.follow_line_border(
+    color_sensor=color_sensor_center,
+    distance_mm=320,
+    speed_mm_s=90)
+
+wait(999999)
