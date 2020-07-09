@@ -12,7 +12,7 @@ from pybricks.ev3devices import Motor
 SOUND_VOLUME=7
 WHEEL_DIAMETER_MM=89
 AXLE_TRACK_MM=135
-SENSOR_TO_AXLE=118
+SENSOR_TO_AXLE=68
 
 # Get wheel circumference
 WHEEL_CIRCUM_MM=3.149*89
@@ -20,13 +20,14 @@ WHEEL_CIRCUM_MM=3.149*89
 DEGREES_PER_MM=360/WHEEL_CIRCUM_MM
  
 #drive motors
-left_motor=Motor(Port.C, Direction.CLOCKWISE)
-right_motor=Motor(Port.D, Direction.CLOCKWISE)
+left_motor=Motor(Port.D, Direction.CLOCKWISE)
+right_motor=Motor(Port.C, Direction.CLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL_DIAMETER_MM, AXLE_TRACK_MM)
-crane_motor=Motor(Port.B, Direction.CLOCKWISE, [8,24])
+crane_motor=None ### Motor(Port.B, Direction.CLOCKWISE, [8,24])
 rack_motor=None ####  Motor(Port.A, Direction.CLOCKWISE)
 
 gyro=GyroSensor(Port.S1, Direction.COUNTERCLOCKWISE)
 color_sensor_left = None ### ColorSensor(Port.S1)
-color_sensor_right = ColorSensor(Port.S4)
+color_sensor_right = None ### ColorSensor(Port.S4)
+color_sensor_center = ColorSensor(Port.S4)
 touch_sensor= TouchSensor(Port.S3)
