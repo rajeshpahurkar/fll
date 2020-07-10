@@ -41,14 +41,18 @@ def follow_line_border(
     left_motor.reset_angle(0)
     motor_target_angle = int(DEGREES_PER_MM * distance_mm)
     while (abs(left_motor.angle()) < abs(motor_target_angle)):
-        darkness = 100 - color_sensor.reflection()
+ 
+        error = 100 - color_sensor.reflection()
+
         if color_sensor.color() == Color.WHITE:
            robot.drive(speed_mm_s, 0)
         elif color_sensor.color() == Color.BLACK:
-           robot.drive(speed_mm_s, 0.5 * darkness)
+           robot.drive(speed_mm_s, 0.5 * error)
         else :
-           robot.drive(speed_mm_s,  -0.5 * darkness)
+           robot.drive(speed_mm_s,  -0.5 * error)
+
         wait(50)
+        
     robot.stop(stop_type=Stop.BRAKE)
 
 follow_line_border(
