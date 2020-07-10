@@ -35,31 +35,18 @@ from robot_setup import DEGREES_PER_MM
  
 ##### Do not change above this line ##########################################
 
-# Import the EV3-robot library
-#old import ev3dev.ev3 as ev3
-#old from time import sleep
-
-
 class LineFollower:
     # Constructor
     def __init__(self):
-        #old self.btn = ev3.Button()
         self.shut_down = False
 
     # Main method
     def run(self):
 
         # sensors
-        #old cs = ev3.ColorSensor();      assert cs.connected  # measures light intensity
-        #old us = ev3.UltrasonicSensor(); assert us.connected  # measures distance
         cs = color_sensor_center
-        #old cs.mode = 'COL-REFLECT'  # measure light intensity
-        #old us.mode = 'US-DIST-CM'   # measure distance in cm
 
         # motors
-        #old lm = ev3.LargeMotor('outB');  assert lm.connected  # left motor
-        #old rm = ev3.LargeMotor('outC');  assert rm.connected  # right motor
-        #old mm = ev3.MediumMotor('outD'); assert mm.connected  # medium motor
         lm = left_motor
         rm = right_motor
 
@@ -76,21 +63,12 @@ class LineFollower:
         previous_error = 0
 
         # initial measurment
-        #old target_value = cs.value()
         target_value = color_sensor.reflection()
 
         # Start the main loop
         while not self.shut_down:
 
-            # deal with obstacles
-            #old distance = us.value() // 10  # convert mm to cm
-
-            #old if distance <= 5:  # sweep away the obstacle
-            #old     mm.run_timed(time_sp=600, speed_sp=+150, stop_action="hold").wait()
-            #old     mm.run_timed(time_sp=600, speed_sp=-150, stop_action="hold").wait()
-
             # Calculate steering using PID algorithm
-            #old error = target_value - cs.value()
             error = target_value - color_sensor.reflection()
             integral += (error * dt)
             derivative = (error - previous_error) / dt
@@ -110,43 +88,15 @@ class LineFollower:
 
             # run motors
             if u >= 0:
-                #old lm.run_timed(time_sp=dt, speed_sp=speed + u, stop_action=stop_action)
-                #old rm.run_timed(time_sp=dt, speed_sp=speed - u, stop_action=stop_action)
-                #old sleep(dt / 1000)
                 lm.run_time(speed=speed + u)
                 rm.run_time(speed=speed - u)
                 wait(dt)
             else:
-                #old lm.run_timed(time_sp=dt, speed_sp=speed - u, stop_action=stop_action)
-                #old rm.run_timed(time_sp=dt, speed_sp=speed + u, stop_action=stop_action)
-                #old sleep(dt / 1000)
                 lm.run_time(speed=speed - u)
                 rm.run_time(speed=speed + u)
                 wait(dt)
 
             previous_error = error
-
-            # Check if buttons pressed (for pause or stop)
-            #old if not self.btn.down:  # Stop
-            #old     print("Exit program... ")
-            #old     self.shut_down = True
-            #old elif not self.btn.left:  # Pause
-            #old     print("[Pause]")
-            #old     self.pause()
-
-    # 'Pause' method
-#old     def pause(self, pct=0.0, adj=0.01):
-#old         while self.btn.right or self.btn.left:  # ...wait 'right' button to unpause
-#old             ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.AMBER, pct)
-#old             ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.AMBER, pct)
-#old             if (pct + adj) < 0.0 or (pct + adj) > 1.0:
-#old                 adj = adj * -1.0
-#old             pct = pct + adj
-
-#old         print("[Continue]")
-#old         ev3.Leds.set_color(ev3.Leds.LEFT, ev3.Leds.GREEN)
-#old         ev3.Leds.set_color(ev3.Leds.RIGHT, ev3.Leds.GREEN)
-
 
 # Main function
 if __name__ == "__main__":
