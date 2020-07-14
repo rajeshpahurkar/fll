@@ -10,6 +10,7 @@ from pybricks.ev3devices import Motor
 
 ##### Do not change above this line ##########################################
 
+
 WHEEL_DIAMETER_MM=89
 AXLE_TRACK_MM=135
  
@@ -95,11 +96,3 @@ def calibrate_gyro(new_angle):
     wait(50)
 
 calibrate_gyro(new_angle=0)
-
-
-
-
-
-
-    
-
