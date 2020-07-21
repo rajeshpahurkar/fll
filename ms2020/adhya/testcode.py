@@ -163,13 +163,6 @@ def move_straight(duration, speed_mm_s):
      robot.drive_time(speed_mm_s, 0, duration)
      robot.stop(stop_type=Stop.BRAKE)
 
-move_straight(duration=4000, speed_mm_s=300) 
-move_straight(5000, 300)
-
-#comment
-
-
-
-
-
+#move_straight(duration=4000, speed_mm_s=300) 
+#move_straight(5000, 300)
 
